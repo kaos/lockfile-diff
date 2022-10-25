@@ -6,7 +6,7 @@ python_distribution(
     repositories=["@pypi"],
     provides=python_artifact(
         name="lockfile-diff",
-        version="0.1.0",
+        version="0.2.0",
         description="Diff changes in lockfiles.",
         license="MIT",
         project_urls={
@@ -34,4 +34,18 @@ Print a summary of what have changed in a given lockfile.
             "Topic :: Software Development",
         ],
     ),
+    entry_points={
+        "console_scripts": {
+            "lockfile-diff": ":bin",
+        },
+    },
+)
+
+python_tests(
+    name="tests",
+)
+
+pex_binary(
+    name="bin",
+    entry_point="lockfile_diff.__main__:main",
 )
