@@ -8,22 +8,21 @@ from typing import IO
 
 import click
 
-from lockfile_diff.core import DataRegistry
-from lockfile_diff.output import Encoder, Text
-from lockfile_diff.parser import pants  # noqa
-from lockfile_diff.parser.format import AutoDetect, Format
-from lockfile_diff.util.class_registry.option import class_registry_option
+from lockfile_diff import formats, schemas  # noqa
+from lockfile_diff.base import Format
+from lockfile_diff.parser import Parser
+from lockfile_diff.registries import Registries
 
 
 @click.command
 @click.option("--old-lockfile", "--old", metavar="LOCKFILE", type=click.File())
 @click.option("--new-lockfile", "--new", metavar="LOCKFILE", type=click.File())
-@class_registry_option(
-    Format,
-    "--input-format",
-    trait="format",
-    default=AutoDetect.format,
-    help="Parse LOCKFILE using FORMAT",
+@click.option(
+    "--lockfile-schema",
+    type=click.Choice(tuple(Registries.get_default().schemas.keys())),
+    metavar="SCHEMA",
+    default="pants-pex",
+    help="Parse LOCKFILEs using SCHEMA",
 )
 @click.option(
     "--compare",
@@ -35,11 +34,10 @@ from lockfile_diff.util.class_registry.option import class_registry_option
         """
     ),
 )
-@class_registry_option(
-    Encoder,
+@click.option(
     "--output-format",
-    trait="format",
-    default=Text.format,
+    type=click.Choice(tuple(Registries.get_default().output_formats.keys())),
+    default="text",
     help="Print resulting diff using OUTPUT_FORMAT.",
 )
 @click.option("--unchanged/--no-unchanged", default=False)
@@ -47,7 +45,7 @@ from lockfile_diff.util.class_registry.option import class_registry_option
 @click.option("--added/--no-added", default=True)
 @click.option("--removed/--no-removed", default=True)
 def main(
-    input_format,
+    lockfile_schema,
     output_format,
     old_lockfile,
     new_lockfile,
@@ -64,11 +62,7 @@ def main(
         assert old_lockfile is not None, "Must provide either --old or --new lockfile"
         new_lockfile = get_git_file(old_lockfile.name, compare)
 
-    old_data, new_data = (
-        Format.parse(lockfile, input_format) for lockfile in (old_lockfile, new_lockfile)
-    )
-    old_info, new_info = (DataRegistry.get_info(data) for data in (old_data, new_data))
-    diff = new_info.diff(old_info)
+    diff = Parser.diff(old_lockfile, new_lockfile, lockfile_schema)
 
     if not unchanged:
         diff.unchanged.clear()
@@ -80,7 +74,7 @@ def main(
     if not removed:
         diff.removed.clear()
 
-    click.echo(Encoder.encode(diff, output_format))
+    click.echo(Format(output_format).encode(diff))
     return 0
 
 

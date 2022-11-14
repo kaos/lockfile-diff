@@ -1,26 +1,14 @@
 from __future__ import annotations
 
-import json
-from dataclasses import asdict
-from typing import Iterator, Mapping
+from typing import IO, Any, Iterator, Mapping, overload
 
-import yaml
 from click import style
-from packaging.version import Version
 
-from lockfile_diff.info import LockfileDiff
-from lockfile_diff.util.class_registry.decorator import class_registry
-from lockfile_diff.util.class_registry.meta import get_implementation
+from lockfile_diff.base import OutputFormat
+from lockfile_diff.types import LockfileDiff, ParsedVersion
 
 
-@class_registry(format="format")
-class Encoder:
-    @classmethod
-    def encode(cls, diff: LockfileDiff, format: str) -> str:
-        return get_implementation(cls, format=format).encode(diff)
-
-
-class Text(Encoder):
+class Text(OutputFormat):
     format = "text"
 
     BUMPS = (
@@ -29,9 +17,24 @@ class Text(Encoder):
         ("micro", "  ", "bright_yellow"),
     )
 
-    @classmethod
-    def encode(cls, diff: LockfileDiff) -> str:
-        return "\n".join(cls.print_diff(diff))
+    @overload
+    def encode(self, data: Any, dest: IO) -> None:
+        ...
+
+    @overload
+    def encode(self, data: Any) -> str:
+        ...
+
+    def encode(self, data: Any, dest: IO | None = None) -> None | str:
+        if isinstance(data, LockfileDiff):
+            output = "\n".join(self.print_diff(data))
+        else:
+            raise ValueError(f"Unexpected data to encode: {data!r}")
+        if dest is None:
+            return output
+        else:
+            dest.write(output)
+        return None
 
     @classmethod
     def print_diff(cls, diff: LockfileDiff) -> Iterator[str]:
@@ -49,7 +52,7 @@ class Text(Encoder):
 
     @classmethod
     def print_changed(
-        cls, title: str, reqs: Mapping[str, tuple[Version, Version]]
+        cls, title: str, reqs: Mapping[str, tuple[ParsedVersion, ParsedVersion]]
     ) -> Iterator[str]:
         if not reqs:
             return
@@ -63,7 +66,7 @@ class Text(Encoder):
             yield f"  {name_s} {prev_s} {bump_s} {curr_s}"
 
     @classmethod
-    def print_reqs(cls, heading: str, reqs: Mapping[str, Version], **kwargs) -> Iterator[str]:
+    def print_reqs(cls, heading: str, reqs: Mapping[str, ParsedVersion], **kwargs) -> Iterator[str]:
         if not reqs:
             return
 
@@ -72,8 +75,8 @@ class Text(Encoder):
             yield style(f"  {name:30} {version}", **kwargs)
 
     @classmethod
-    def get_bump_s(cls, prev: Version, curr: Version) -> str:
-        attrs = {}
+    def get_bump_s(cls, prev: ParsedVersion, curr: ParsedVersion) -> str:
+        attrs: dict[str, Any] = {}
         for key, label, fg in cls.BUMPS:
             if getattr(prev, key) == getattr(curr, key):
                 continue
@@ -88,33 +91,3 @@ class Text(Encoder):
             label = "???"
             attrs["fg"] = "magenta"
         return style(f"{label:^7}", **attrs)
-
-
-class JSON(Encoder):
-    format = "json"
-
-    @classmethod
-    def encode(cls, diff: LockfileDiff) -> str:
-        return json.dumps(asdict(diff), cls=JSONEncoder)
-
-
-class YAML(Encoder):
-    format = "yaml"
-
-    @classmethod
-    def encode(cls, diff: LockfileDiff) -> str:
-        return yaml.safe_dump(asdict(diff))
-
-
-class JSONEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, Version):
-            return str(o)
-        return super().default(o)
-
-
-def yaml_represent_version(dumper, data):
-    return dumper.represent_str(str(data))
-
-
-yaml.add_representer(Version, yaml_represent_version, Dumper=yaml.SafeDumper)

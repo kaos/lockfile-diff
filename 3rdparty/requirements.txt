@@ -1,3 +1,10 @@
 click
 packaging
+phx-class-registry
+pytest
 pyyaml
+setuptools
+toml
+
+types-toml
+types-pyyaml

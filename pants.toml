@@ -1,5 +1,5 @@
 [GLOBAL]
-pants_version = "2.14.0rc5"
+pants_version = "2.14.0"
 backend_packages = [
   "pants.backend.experimental.python",
   "pants.backend.experimental.python.lint.autoflake",
@@ -28,3 +28,8 @@ enable_resolves = true
 
 [python.resolves]
 python-default = "3rdparty/requirements.lock"
+test-pex = "tests/lockfiles/pants-pex/cowsay.lock"
+
+
+[python-infer]
+assets = true

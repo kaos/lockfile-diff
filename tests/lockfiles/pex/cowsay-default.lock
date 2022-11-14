@@ -1,0 +1,44 @@
+{
+  "allow_builds": true,
+  "allow_prereleases": false,
+  "allow_wheels": true,
+  "build_isolation": true,
+  "constraints": [],
+  "locked_resolves": [
+    {
+      "locked_requirements": [
+        {
+          "artifacts": [
+            {
+              "algorithm": "sha256",
+              "hash": "c00e02444f5bc7332826686bd44d963caabbaba9a804a63153822edce62bbbf3",
+              "url": "https://files.pythonhosted.org/packages/6b/b8/9f497fd045d74fe21d91cbe8debae0b451229989e35b539d218547d79fc6/cowsay-5.0.tar.gz"
+            }
+          ],
+          "project_name": "cowsay",
+          "requires_dists": [],
+          "requires_python": null,
+          "version": "5.0"
+        }
+      ],
+      "platform_tag": [
+        "cp39",
+        "cp39",
+        "macosx_12_0_arm64"
+      ]
+    }
+  ],
+  "path_mappings": {},
+  "pex_version": "2.1.113",
+  "pip_version": "20.3.4-patched",
+  "prefer_older_binary": false,
+  "requirements": [
+    "cowsay"
+  ],
+  "requires_python": [],
+  "resolver_version": "pip-legacy-resolver",
+  "style": "strict",
+  "target_systems": [],
+  "transitive": true,
+  "use_pep517": null
+}
