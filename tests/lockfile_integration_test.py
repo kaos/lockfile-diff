@@ -2,9 +2,9 @@ import re
 from io import StringIO
 
 import pytest
+from lockfile_diff.base import Format, Schema
 
 from lockfile_diff import formats, schemas  # noqa
-from lockfile_diff.base import Format, Schema
 
 
 @pytest.mark.parametrize(
@@ -17,6 +17,10 @@ from lockfile_diff.base import Format, Schema
         (
             "tests/lockfiles/pants-pex/cowsay.lock",
             "tests/lockfiles/pants-pex/cowsay.test.yaml",
+        ),
+        (
+            "tests/lockfiles/coursier/hamcrest.lock",
+            "tests/lockfiles/coursier/hamcrest.test.yaml",
         ),
     ],
 )

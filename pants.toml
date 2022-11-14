@@ -1,6 +1,7 @@
 [GLOBAL]
 pants_version = "2.14.0"
 backend_packages = [
+  "pants.backend.experimental.java",
   "pants.backend.experimental.python",
   "pants.backend.experimental.python.lint.autoflake",
   "pants.backend.python",
@@ -33,3 +34,7 @@ test-pex = "tests/lockfiles/pants-pex/cowsay.lock"
 
 [python-infer]
 assets = true
+
+
+[jvm.resolves]
+test-jvm = "tests/lockfiles/coursier/hamcrest.lock"

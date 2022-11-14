@@ -25,6 +25,9 @@ class PexLockfileData(ParsedData):
 
         We have been warned.
         """
+        if "pex_version" not in parsed_data.raw:
+            raise ValueError("not a pex lockfile")
+
         return cls(
             parsed_data.raw,
             locked_resolves=tuple(

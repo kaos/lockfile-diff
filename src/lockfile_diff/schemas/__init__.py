@@ -1,1 +1,1 @@
-from lockfile_diff.schemas import pants, pex  # noqa
+from lockfile_diff.schemas import coursier, pants, pex  # noqa
