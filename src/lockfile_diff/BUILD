@@ -6,7 +6,7 @@ python_distribution(
     repositories=["@pypi"],
     provides=python_artifact(
         name="lockfile-diff",
-        version="0.2.0",
+        version="0.3.0",
         description="Diff changes in lockfiles.",
         license="MIT",
         project_urls={
