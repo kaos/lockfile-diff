@@ -2,9 +2,9 @@ import re
 from io import StringIO
 
 import pytest
-from lockfile_diff.base import Format, Schema
 
 from lockfile_diff import formats, schemas  # noqa
+from lockfile_diff.base import Format, Schema
 
 
 @pytest.mark.parametrize(

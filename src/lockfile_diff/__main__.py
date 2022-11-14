@@ -20,8 +20,7 @@ from lockfile_diff.registries import Registries
 @click.option(
     "--lockfile-schema",
     type=click.Choice(tuple(Registries.get_default().schemas.keys())),
-    metavar="SCHEMA",
-    default="pants-pex",
+    default="auto-detect",
     help="Parse LOCKFILEs using SCHEMA",
 )
 @click.option(

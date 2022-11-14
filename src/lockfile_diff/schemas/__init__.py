@@ -1,1 +1,1 @@
-from lockfile_diff.schemas import coursier, pants, pex  # noqa
+from lockfile_diff.schemas import autodetect, coursier, pants, pex  # noqa
