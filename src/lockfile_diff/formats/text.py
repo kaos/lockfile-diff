@@ -60,7 +60,7 @@ class Text(OutputFormat):
         yield cls.title(title)
         for name, (prev, curr) in reqs.items():
             name_s = style(f"{name:30}", fg="yellow")
-            prev_s = style(f"{str(prev):8}", fg="cyan")
+            prev_s = style(f"{str(prev):10}", fg="cyan")
             curr_s = style(f"{curr}", fg="green")
             bump_s = cls.get_bump_s(prev, curr)
             yield f"  {name_s} {prev_s} {bump_s} {curr_s}"
