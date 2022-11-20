@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 from __future__ import annotations
 
+import sys
 from io import StringIO
-from subprocess import run
+from subprocess import CalledProcessError, run
 from textwrap import dedent
 from typing import IO
 
@@ -10,6 +11,7 @@ import click
 
 from lockfile_diff import formats, schemas  # noqa
 from lockfile_diff.base import Format
+from lockfile_diff.errors import FAILED_TO_OPEN_FILE
 from lockfile_diff.parser import Parser
 from lockfile_diff.registries import Registries
 
@@ -47,7 +49,7 @@ from lockfile_diff.registries import Registries
     "--no-fail",
     is_flag=True,
     default=False,
-    help="Silence error message from `auto-detect` SCHEMA.",
+    help="Treat missing input file as empty. Silence error message from `auto-detect` SCHEMA.",
 )
 def main(
     lockfile_schema,
@@ -63,10 +65,12 @@ def main(
 ):
     if old_lockfile is None and compare:
         assert new_lockfile is not None, "Must provide either --old or --new lockfile"
-        old_lockfile = get_git_file(new_lockfile.name, compare)
+        old_lockfile = get_git_file(new_lockfile.name, compare, quiet=no_fail)
     if new_lockfile is None:
         assert old_lockfile is not None, "Must provide either --old or --new lockfile"
-        new_lockfile = get_git_file(old_lockfile.name, compare)
+        new_lockfile = get_git_file(old_lockfile.name, compare, quiet=no_fail)
+    if not no_fail and (old_lockfile is None or new_lockfile is None):
+        sys.exit(FAILED_TO_OPEN_FILE)
 
     kwargs = {}
     if lockfile_schema == "auto-detect" and no_fail:
@@ -98,13 +102,19 @@ class NamedStringIO(StringIO):
         return self.__name
 
 
-def get_git_file(filename: str, commit: str) -> IO:
-    return NamedStringIO(
-        run(
+def get_git_file(filename: str, commit: str, quiet: bool) -> IO | None:
+    try:
+        file_contents = run(
             ["git", "show", f"{commit}:{filename}"], check=True, capture_output=True, text=True
-        ).stdout,
-        name=f"[git: {commit}] {filename}",
-    )
+        ).stdout
+        return NamedStringIO(
+            file_contents,
+            name=f"[git: {commit}] {filename}",
+        )
+    except CalledProcessError as e:
+        if not quiet:
+            click.echo(f"ERROR: {e}", err=True)
+        return None
 
 
 if __name__ == "__main__":
