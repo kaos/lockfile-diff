@@ -2,11 +2,15 @@ python_sources()
 
 python_distribution(
     name="dist",
-    dependencies=[":lockfile_diff"],
+    dependencies=[
+        ":lockfile_diff",
+        # https://github.com/pantsbuild/pants/issues/17593
+        "3rdparty#setuptools",
+    ],
     repositories=["@pypi"],
     provides=python_artifact(
         name="lockfile-diff",
-        version="0.3.1",
+        version="0.3.2",
         description="Diff changes in lockfiles.",
         license="MIT",
         project_urls={
