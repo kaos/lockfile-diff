@@ -22,6 +22,10 @@ from lockfile_diff.base import Format, Schema
             "tests/lockfiles/coursier/hamcrest.lock",
             "tests/lockfiles/coursier/hamcrest.test.yaml",
         ),
+        (
+            "tests/lockfiles/pex-app/cowsay.pex",
+            "tests/lockfiles/pex-app/cowsay.test.yaml",
+        )
     ],
 )
 def test_lockfile_info(input_file: str, expected_file: str) -> None:

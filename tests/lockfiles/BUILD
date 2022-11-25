@@ -1,6 +1,6 @@
 
 files(
-    sources=["**/*.lock", "**/*.test.yaml"]
+    sources=["**/*.lock", "**/*.pex", "**/*.test.yaml"]
 )
 
 python_requirement(
